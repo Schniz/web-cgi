@@ -12,12 +12,15 @@ function envToRequest() {
     headers.set(header, value);
   }
 
-  const method = process.env.REQUEST_METHOD;
-  const url = process.env.REQUEST_URI;
-
-  if (!url) {
-    throw new Error("REQUEST_URI not set");
+  if (process.env.CONTENT_TYPE) {
+    headers.set("content-type", process.env.CONTENT_TYPE);
   }
+  if (process.env.CONTENT_LENGTH) {
+    headers.set("content-length", process.env.CONTENT_LENGTH);
+  }
+
+  const method = process.env.REQUEST_METHOD;
+  const url = `${/https/i.test(process.env.SERVER_PROTOCOL ?? "") ? "https" : "http"}://${process.env.SERVER_NAME}:${process.env.SERVER_PORT}${process.env.REQUEST_URI}`;
 
   return new Request(url, {
     method: method,
@@ -31,6 +34,8 @@ function envToRequest() {
 async function printResponse(response: Response) {
   if (response.status !== 200) {
     console.log(`Status: ${response.status}`);
+  } else {
+    console.log(`Status: ${response.status} OK`);
   }
 
   for (const [key, value] of response.headers) {
