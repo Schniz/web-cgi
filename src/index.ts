@@ -20,7 +20,15 @@ function envToRequest() {
   }
 
   const method = process.env.REQUEST_METHOD;
-  const url = `${/https/i.test(process.env.SERVER_PROTOCOL ?? "") ? "https" : "http"}://${process.env.SERVER_NAME}:${process.env.SERVER_PORT}${process.env.REQUEST_URI}`;
+  let url = `${
+    /https/i.test(process.env.SERVER_PROTOCOL ?? "") ? "https" : "http"
+  }://${process.env.SERVER_NAME}:${process.env.SERVER_PORT}${
+    process.env.PATH_INFO
+  }`;
+
+  if (process.env.QUERY_STRING) {
+    url += `?${process.env.QUERY_STRING}`;
+  }
 
   return new Request(url, {
     method: method,
